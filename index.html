@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Search Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"], input[type="checkbox"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>File Search Application</h1>
+    <input type="text" id="file_name" placeholder="Enter file name" required>
+    <input type="text" id="search_path" placeholder="Enter search path (default: C:\)">
+    <label>
+        <input type="checkbox" id="stop_first_match"> Stop at first match
+    </label>
+    <button onclick="searchFile()">Search</button>
+    
+    <div class="results" id="results" style="display:none;"></div>
+</div>
+
+<script>
+    async function searchFile() {
+        const fileName = document.getElementById('file_name').value;
+        const searchPath = document.getElementById('search_path').value || "C:\\";
+        const stopFirstMatch = document.getElementById('stop_first_match').checked;
+
+        const response = await fetch('http://localhost/search-file', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                file_name: fileName,
+                search_path: searchPath,
+                stop_first_match: stopFirstMatch
+            })
+        });
+
+        const data = await response.json();
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.style.display = 'block';
+
+        if (data.status === "success") {
+            resultsDiv.innerHTML = `<strong>Matches Found:</strong><br>${data.matches.join('<br>')}`;
+        } else {
+            resultsDiv.innerHTML = `<strong>No matches found.</strong>`;
+        }
+    }
+</script>
+
+</body>
+</html>
